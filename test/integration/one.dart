@@ -1,10 +1,10 @@
 part of integrationtests;
 
 void runIntTests(String user, String password, String db, int port, String host) {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   group('some tests:', () {
     test('create pool', () {
-      pool = new ConnectionPool(user:user, password:password, db:db, port:port, host:host);
+      pool = new MySqlConnectionPool(user:user, password:password, db:db, port:port, host:host);
       expect(pool, isNotNull);
     });
     

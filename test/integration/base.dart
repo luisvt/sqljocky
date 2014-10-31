@@ -1,6 +1,6 @@
 part of integrationtests;
 
-Future setup(ConnectionPool pool, String tableName, String createSql, [String insertSql]) {
+Future setup(MySqlConnectionPool pool, String tableName, String createSql, [String insertSql]) {
   return new TableDropper(pool, [tableName]).dropTables().then((_) {
     return pool.query(createSql);
   }).then((result) {
@@ -14,6 +14,6 @@ Future setup(ConnectionPool pool, String tableName, String createSql, [String in
 }
 
 // thinking of putting other stuff in here too.
-void close(ConnectionPool pool) {
+void close(MySqlConnectionPool pool) {
   pool.closeConnectionsWhenNotInUse();
 }

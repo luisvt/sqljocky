@@ -2,12 +2,12 @@ part of sqljocky;
 
 abstract class _RetainedConnectionBase extends Object with _ConnectionHelpers implements QueriableConnection {
   _Connection _cnx;
-  ConnectionPool _pool;
+  MySqlConnectionPool _pool;
   bool _released;
   
   _RetainedConnectionBase._(this._cnx, this._pool) : _released = false;
   
-  Future<Results> query(String sql) {
+  Future<Result> query(String sql) {
     _checkReleased();
     var handler = new _QueryStreamHandler(sql);
     return _cnx.processHandler(handler);
@@ -19,7 +19,7 @@ abstract class _RetainedConnectionBase extends Object with _ConnectionHelpers im
     return query._prepare(true).then((preparedQuery) => new Future.value(query));
   }
   
-  Future<Results> prepareExecute(String sql, List parameters) {
+  Future<Result> prepareExecute(String sql, List parameters) {
     _checkReleased();
     return prepare(sql)
       .then((query) {

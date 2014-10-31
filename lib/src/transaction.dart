@@ -58,10 +58,10 @@ class _TransactionImpl extends _RetainedConnectionBase implements Transaction {
   }
 }
 
-class _TransactionPool extends ConnectionPool {
+class _TransactionPool extends MySqlConnectionPool {
   final _Connection cnx;
   
-  _TransactionPool(this.cnx);
+  _TransactionPool(this.cnx) : super(null, null, null);
   
   Future<_Connection> _getConnection() => new Future.value(cnx);
   

@@ -9,7 +9,7 @@ part of sqljocky;
  * in its cache, it will first prepare the query on that connection before executing it.
  */
 class Query extends Object with _ConnectionHelpers {
-  final ConnectionPool _pool;
+  final MySqlConnectionPool _pool;
   final _Connection _cnx;
   final String sql;
   final Logger _log;
@@ -96,27 +96,27 @@ class Query extends Object with _ConnectionHelpers {
   /**
    * Executes the query, returning a future [Results] object.
    */
-  Future<Results> execute([List values]) {
+  Future<Result> execute([List values]) {
     _log.fine("Prepare...");
     return _prepare(true)
       .then((preparedQuery) {
         _log.fine("Prepared, now to execute");
         return _execute(preparedQuery, values == null ? [] : values)
-          .then((Results results) {
+          .then((Result results) {
             _log.fine("Got prepared query results on #${preparedQuery.cnx.number} for: ${sql}");
             return results;
           });
       });
   }
   
-  Future<Results> _execute(_PreparedQuery preparedQuery, List values,
+  Future<Result> _execute(_PreparedQuery preparedQuery, List values,
       {bool retainConnection: false}) {
     _log.finest("About to execute");
-    var c = new Completer<Results>();
+    var c = new Completer<Result>();
     var handler = new _ExecuteQueryHandler(preparedQuery, _executed, values);
     preparedQuery.cnx.autoRelease = !retainConnection;
     preparedQuery.cnx.processHandler(handler)
-      .then((Results results) {
+      .then((Result results) {
         _log.finest("Prepared query got results");
         c.complete(results);
       })
@@ -134,35 +134,35 @@ class Query extends Object with _ConnectionHelpers {
    * can move onto the next query, it ends up keeping all the results in memory, rather than
    * streaming them, which can be less efficient.
    */
-  Future<List<Results>> executeMulti(List<List> parameters) {
+  Future<List<Result>> executeMulti(List<List> parameters) {
     return _prepare(true)
       .then((preparedQuery) {
-        var c = new Completer<List<Results>>();
+        var c = new Completer<List<Result>>();
         _log.fine("Prepared query for multi execution. Number of values: ${parameters.length}");
-        var resultList = new List<Results>();
+        var resultList = new List<Result>();
         
-        executeQuery(int i) {
-          _log.fine("Executing query, loop $i");
-          _execute(preparedQuery, parameters[i], retainConnection: true)
-            .then((Results results) {
-              _log.fine("Got results, loop $i");
-              return _ResultsImpl.destream(results);
-            })
-            .then((Results deStreamedResults) {
-              resultList.add(deStreamedResults);
-              if (i < parameters.length - 1) {
-                executeQuery(i + 1);
-              } else {
-                preparedQuery.cnx.release();
-                c.complete(resultList);
-              }
-            })
-            .catchError((e) {
-              _releaseReuseCompleteError(preparedQuery.cnx, c, e);
-            });
-        }
+//        executeQuery(int i) {
+//          _log.fine("Executing query, loop $i");
+//          _execute(preparedQuery, parameters[i], retainConnection: true)
+//            .then((Result results) {
+//              _log.fine("Got results, loop $i");
+//              return _ResultsImpl.destream(results);
+//            })
+//            .then((Result deStreamedResults) {
+//              resultList.add(deStreamedResults);
+//              if (i < parameters.length - 1) {
+//                executeQuery(i + 1);
+//              } else {
+//                preparedQuery.cnx.release();
+//                c.complete(resultList);
+//              }
+//            })
+//            .catchError((e) {
+//              _releaseReuseCompleteError(preparedQuery.cnx, c, e);
+//            });
+//        }
         
-        executeQuery(0);
+//        executeQuery(0);
         return c.future;
       });
   }

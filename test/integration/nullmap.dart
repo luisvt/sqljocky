@@ -1,10 +1,10 @@
 part of integrationtests;
 
 void runNullMapTests(String user, String password, String db, int port, String host) {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   group('nullmap tests:', () {
     test('setup', () {
-      pool = new ConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
+      pool = new MySqlConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
       return setup(pool, "nullmap", "create table nullmap (a text, b text, c text, d text)");
     });
     

@@ -5,18 +5,18 @@ part of sqljocky;
  * a free connection it will be used, otherwise the query is queued until a connection is
  * free.
  */
-class ConnectionPool extends Object with _ConnectionHelpers implements QueriableConnection {
-  final Logger _log;
+class MySqlConnectionPool extends ConnectionPool with _ConnectionHelpers implements QueriableConnection {
+  final Logger _log = new Logger("MySqlConnectionPool");
 
-  final String _host;
-  final int _port;
-  final String _user;
-  final String _password;
-  final String _db;
-  final bool _useCompression = false;
-  final bool _useSSL;
-  final int _maxPacketSize;
-  int _max;
+//  final String _host;
+//  final int _port;
+//  final String _user;
+//  final String _password;
+//  final String _db;
+//  final bool _useCompression = false;
+//  final bool _useSSL;
+//  final int _maxPacketSize;
+//  int _max;
 
 /*
    * The pool maintains a queue of connection requests. When a connection completes, if there
@@ -27,7 +27,7 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   final List<_Connection> _pool;
 
 /**
- * Creates a [ConnectionPool]. When connections are required they will connect to the
+ * Creates a [MySqlConnectionPool]. When connections are required they will connect to the
  * [db] on the given [host] and [port], using the [user] and [password]. The [max] number
  * of simultaneous connections can also be specified, as well as the [maxPacketSize].
  *
@@ -35,22 +35,13 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
  * will happen when the pool is used. If you need to find out if the connection
  * details are correct you might want to run a dummy query such as 'SELECT 1'.
  */
-  ConnectionPool({String host: 'localhost', int port: 3306, String user,
-      String password, String db, int max: 5, int maxPacketSize: 16 * 1024 * 1024,
+  MySqlConnectionPool(String user,
+                      String password, String db, {String host: 'localhost', int port: 3306, int min, int max: 5, int maxPacketSize: 16 * 1024 * 1024,
 //      bool useCompression: false,
       bool useSSL: false}) :
   _pendingConnections = new Queue<Completer<_Connection>>(),
-  _pool = new List<_Connection>(),
-  _host = host,
-  _port = port,
-  _user = user,
-  _password = password,
-  _db = db,
-  _maxPacketSize = maxPacketSize,
-  _max = max,
-//  _useCompression = useCompression,
-  _useSSL = useSSL,
-  _log = new Logger("ConnectionPool");
+  _pool = new List<_Connection>(), super(user, password, db, host: host, port: port, min: min, max: max, maxPacketSize: maxPacketSize, useSSL: useSSL);
+
 
   Future<_Connection> _getConnection() {
     _log.finest("Getting a connection");
@@ -66,7 +57,7 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
       _log.finest("Using open pooled cnx#${cnx.number}");
       cnx.use();
       c.complete(cnx);
-    } else if (_pool.length < _max) {
+    } else if (_pool.length < max) {
       _log.finest("Creating new pooled cnx#${_pool.length}");
       _createConnection(c);
     } else {
@@ -77,18 +68,18 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   }
 
   _createConnection(Completer c) {
-    var cnx = new _Connection(this, _pool.length, _maxPacketSize);
+    var cnx = new _Connection(this, _pool.length, maxPacketSize);
     cnx.use();
     cnx.autoRelease = false;
     _pool.add(cnx);
     cnx.connect(
-        host: _host,
-        port: _port,
-        user: _user,
-        password: _password,
-        db: _db,
-        useCompression: _useCompression,
-        useSSL: _useSSL)
+        host: host,
+        port: port,
+        user: user,
+        password: password,
+        db: dbName,
+//        useCompression: useCompression,
+        useSSL: useSSL)
     .then((_) {
       cnx.autoRelease = true;
       _log.finest("Logged in on cnx#${cnx.number}");
@@ -172,12 +163,12 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
     }
   }
 
-  Future<Results> query(String sql) {
+  Future<Result> query(String sql) {
     _log.info("Running query: ${sql}");
 
     return _getConnection()
     .then((cnx) {
-      var c = new Completer<Results>();
+      var c = new Completer<Result>();
       _log.fine("Got cnx#${cnx.number} for query");
       cnx.processHandler(new _QueryStreamHandler(sql))
       .then((results) {
@@ -328,7 +319,7 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
     });
   }
 
-  Future<Results> prepareExecute(String sql, List parameters) {
+  Future<Result> prepareExecute(String sql, List parameters) {
     return prepare(sql).then((query) {
       return query.execute(parameters);
     });
@@ -347,6 +338,11 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
 //  dynamic binlogDump(options);
 //  dynamic registerSlave(options);
 //  dynamic setOptions(int option);
+
+  @override
+  Future<Result> execute(String sql, [parameters, bool transactional = false, bool consistent = true]) {
+    // TODO: implement execute
+  }
 }
 
 abstract class _ConnectionHelpers {
@@ -366,7 +362,7 @@ abstract class QueriableConnection {
    * Executes the [sql] query, returning a [Future]<[Results]> that completes 
    * when the results start to become available.
    */
-  Future<Results> query(String sql);
+  Future<Result> query(String sql);
 
 /**
    * Prepares a query with the given [sql]. Returns a [Future<Query>] that
@@ -379,5 +375,5 @@ abstract class QueriableConnection {
    * Returns a [Future]<[Results]> that completes when the query has been
    * executed.
    */
-  Future<Results> prepareExecute(String sql, List<dynamic> parameters);
+  Future<Result> prepareExecute(String sql, List<dynamic> parameters);
 }

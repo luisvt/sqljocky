@@ -1,6 +1,6 @@
 part of integrationtests;
 
-Future deleteInsertSelect(ConnectionPool pool, table, insert, select) {
+Future deleteInsertSelect(MySqlConnectionPool pool, table, insert, select) {
   return pool.query('delete from $table').then((_) {
     return pool.query(insert);
   }).then((_) {
@@ -9,10 +9,10 @@ Future deleteInsertSelect(ConnectionPool pool, table, insert, select) {
 }
 
 void runNumberTests(String user, String password, String db, int port, String host) {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   group('number tests:', () {
     test('setup', () {
-      pool = new ConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
+      pool = new MySqlConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
       return setup(pool, "nums", "create table nums ("
           "atinyint tinyint, asmallint smallint, amediumint mediumint, aint int, abigint bigint, "
           "utinyint tinyint unsigned, usmallint smallint unsigned, umediumint mediumint unsigned, uint int unsigned, ubigint bigint unsigned, "

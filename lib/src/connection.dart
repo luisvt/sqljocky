@@ -8,7 +8,7 @@ class _Connection {
   final Logger log;
   final Logger lifecycleLog;
 
-  ConnectionPool _pool;
+  MySqlConnectionPool _pool;
   _Handler _handler;
   Completer<dynamic> _completer;
 

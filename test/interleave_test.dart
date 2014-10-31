@@ -16,7 +16,7 @@ import 'dart:math';
 class Example {
   var insertedIds = [];
   var rnd = new Random();
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   
   Example(this.pool);
   
@@ -166,18 +166,14 @@ class Example {
         'from people p '
         'left join pets t on t.owner_id = p.id').then((result) {
       print("got results");
-      result.toList().then((list) {
-        if (list != null) {
-          for (var row in list) {
-            if (row[3] == null) {
-              print("ID: ${row[0]}, Name: ${row[1]}, Age: ${row[2]}, No Pets");
-            } else {
-              print("ID: ${row[0]}, Name: ${row[1]}, Age: ${row[2]}, Pet Name: ${row[3]}, Pet Species ${row[4]}");
-            }
-          }
+      result.rows.forEach((row) {
+        if (row[3] == null) {
+          print("ID: ${row[0]}, Name: ${row[1]}, Age: ${row[2]}, No Pets");
+        } else {
+          print("ID: ${row[0]}, Name: ${row[1]}, Age: ${row[2]}, Pet Name: ${row[3]}, Pet Species ${row[4]}");
         }
-        completer.complete(null);
       });
+      completer.complete(null);
     });
     return completer.future;
   }
@@ -208,8 +204,7 @@ void main() {
 
       // create a connection
       log.fine("opening connection");
-      var pool = new ConnectionPool(host: host, port: port, user: user,
-          password: password, db: db, max: 5);
+      var pool = new MySqlConnectionPool(user, password, db, host: host, port: port, max: 5);
       log.fine("connection open");
       // create an example class
       var example = new Example(pool);

@@ -10,7 +10,7 @@ import 'dart:async';
  */
 
 class Example {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   
   Example(this.pool);
   
@@ -114,7 +114,7 @@ void main() {
 
   // create a connection
   print("opening connection");
-  var pool = new ConnectionPool(host: host, port: port, user: user, password: password, db: db, max:1);
+  var pool = new MySqlConnectionPool(host: host, port: port, user: user, password: password, db: db, max:1);
   print("connection open");
   // create an example class
   var example = new Example(pool);

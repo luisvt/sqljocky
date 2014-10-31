@@ -4,7 +4,7 @@ part of utils;
  * Drops a set of tables.
  */
 class TableDropper {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   List<String> tables;
   List<String> _tables = [];
   
@@ -58,7 +58,7 @@ class TableDropper {
  * queries as the results are ignored.
  */
 class QueryRunner {
-  final ConnectionPool pool;
+  final MySqlConnectionPool pool;
   final List<String> queries;
   final List<String> _queries = [];
   

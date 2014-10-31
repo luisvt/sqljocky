@@ -1,10 +1,10 @@
 part of integrationtests;
 
 void runStoredProcedureTests(String user, String password, String db, int port, String host) {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   group('error tests:', () {
     test('setup', () {
-      pool = new ConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
+      pool = new MySqlConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
 //      return setup(pool, "stream", "create table stream (id integer, name text)");
     });
     

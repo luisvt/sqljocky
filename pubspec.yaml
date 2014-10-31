@@ -8,8 +8,10 @@ environment:
 documentation: http://jamesots.github.io/sqljocky/docs
 dependencies:
   crypto: '>=0.9.0 <0.10.0'
+  ddbc:
+    path: ../ddbc
   logging: '>=0.9.0 <0.10.0'
   options_file: '>=0.9.15'
 dev_dependencies:
-  unittest: '>=0.9.0 <0.10.0'
   args: any
+  unittest: '>=0.9.0 <0.10.0'

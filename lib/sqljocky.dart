@@ -17,13 +17,15 @@ import 'src/buffered_socket.dart';
 import 'src/results.dart';
 export 'src/results.dart';
 
+import 'package:ddbc/ddbc.dart';
+
 part 'src/blob.dart';
 
+part 'src/query.dart';
 part 'src/connection_pool.dart';
 part 'src/connection.dart';
 part 'src/transaction.dart';
 part 'src/retained_connection.dart';
-part 'src/query.dart';
 part 'src/mysql_exception.dart';
 part 'src/mysql_protocol_error.dart';
 part 'src/mysql_client_error.dart';
@@ -58,3 +60,5 @@ part 'src/query/query_stream_handler.dart';
 
 part 'src/results/results_impl.dart';
 part 'src/results/field_impl.dart';
+
+

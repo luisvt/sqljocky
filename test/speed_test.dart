@@ -10,7 +10,7 @@ class SpeedTest {
   static const PREPARED_INSERTS = 200;
   static const POOL_SIZE = 1;
   
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   Logger log;
   
   SpeedTest(this.pool) :
@@ -101,17 +101,17 @@ void main() {
   var log = new Logger("Speed");
   log.level = Level.ALL;
   
-  var options = new OptionsFile('connection.options');
-  var user = options.getString('user');
-  var password = options.getString('password');
-  var port = options.getInt('port', 3306);
-  var db = options.getString('db');
-  var host = options.getString('host', 'localhost');
+//  var options = new OptionsFile('connection.options');
+//  var user = options.getString('user');
+//  var password = options.getString('password');
+//  var port = options.getInt('port', 3306);
+//  var db = options.getString('db');
+//  var host = options.getString('host', 'localhost');
 
   // create a connection
   log.fine("opening connection");
-  var pool = new ConnectionPool(host: host, port: port, user: user,
-      password: password, db: db, max: SpeedTest.POOL_SIZE);
+  var pool = new MySqlConnectionPool('luis', 'FYHach1@3', 'testdb', host: 'root', port: 3306, 
+      max: SpeedTest.POOL_SIZE);
   log.fine("connection open");
 
   var stopwatch = new Stopwatch()..start();

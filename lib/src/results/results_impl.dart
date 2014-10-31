@@ -1,6 +1,6 @@
 part of sqljocky;
 
-class _ResultsImpl extends StreamView<Row> implements Results {
+class _ResultsImpl extends StreamView<Row> {
   final int insertId;
   final int affectedRows;
   List<Field> _fields;

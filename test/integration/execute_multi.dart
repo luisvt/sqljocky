@@ -1,10 +1,10 @@
 part of integrationtests;
 
 void runExecuteMultiTests(String user, String password, String db, int port, String host) {
-  ConnectionPool pool;
+  MySqlConnectionPool pool;
   group('executeMulti tests:', () {
     test('setup', () {
-      pool = new ConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
+      pool = new MySqlConnectionPool(user:user, password:password, db:db, port:port, host:host, max:1);
       return setup(pool, "stream", "create table stream (id integer, name text)",
       "insert into stream (id, name) values (1, 'A'), (2, 'B'), (3, 'C')");
     });
